@@ -16,6 +16,6 @@ tags
 **/tags
 
 # esp-idf build
-/build/
+**/build/
 sdkconfig
 sdkconfig.old
