@@ -14,3 +14,8 @@
 # ctags
 tags
 **/tags
+
+# esp-idf build
+/build/
+sdkconfig
+sdkconfig.old
