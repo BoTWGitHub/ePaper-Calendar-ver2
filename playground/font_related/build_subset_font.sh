@@ -9,6 +9,7 @@ fi
 # === 確保必要的資料夾存在 ===
 mkdir -p collection
 mkdir -p subset_font
+mkdir -p output    # 🔧 為 xxd 輸出預先建立
 
 # === 步驟 1: 分析所有 .ics 檔案，產生 used_letters.txt ===
 echo "🔍 收集 ICS 中使用的中文字..."
@@ -31,13 +32,6 @@ for font_file in font/*.{ttf,otf}; do
     pyftsubset "$font_file" \
         --text-file=collection/used_letters.txt \
         --output-file="$output_file" \
-        --layout-features='*' \
-        --flavor=truetype \
-        --unicodes='*' \
-        --retain-gids \
-        --symbol-cmap \
-        --name-IDs='*' \
-        --glyph-names
 
     if [ $? -eq 0 ]; then
         echo "    ✅ 完成：$output_file"
@@ -46,5 +40,23 @@ for font_file in font/*.{ttf,otf}; do
     fi
 done
 
-echo "✅ 全部完成！子集字型已輸出至 subset_font/"
+echo "📦 開始轉換 subset_font/* 為 .c 檔案..."
+
+# === 步驟 3: 使用 xxd -i 將 subset 字型轉成 C 陣列 ===
+for subset in subset_font/*.ttf; do
+    [ -e "$subset" ] || continue
+    base=$(basename "$subset" .ttf)
+    output_path="output/${base}.c"
+
+    echo "  ➤ 產生 C 檔案：$output_path"
+    xxd -i "$subset" > "$output_path"
+
+    if [ $? -eq 0 ]; then
+        echo "    ✅ C 檔完成：$output_path"
+    else
+        echo "    ❌ 轉換失敗：$subset"
+    fi
+done
+
+echo "🎉 全部完成！C 檔案已儲存至 output/"
 

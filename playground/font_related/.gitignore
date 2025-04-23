@@ -1,4 +1,5 @@
 *.ics
 collection/*
 font/*
-subset/*
+subset_font/*
+output/*
