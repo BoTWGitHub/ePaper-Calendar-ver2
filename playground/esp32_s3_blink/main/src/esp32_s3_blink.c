@@ -16,7 +16,7 @@
 
 static const char *TAG = "example";
 
-#define BLINK_GPIO 48
+#define BLINK_GPIO 38
 #define CONFIG_BLINK_PERIOD 500
 #define LED_R_LEVEL 10
 #define LED_G_LEVEL 10
