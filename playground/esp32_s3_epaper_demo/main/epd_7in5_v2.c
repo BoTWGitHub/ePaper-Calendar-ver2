@@ -106,3 +106,33 @@ void epd_7in5_v2_clear(void)
 
     epd_7in5_v2_trun_on_display();
 }
+
+void epd_7in5_v2_display(uint8_t *image)
+{
+    int width = EPD_7IN5_V2_WIDTH / 8;
+    epd_cmd(0x10);
+    for (int j = 0; j < EPD_7IN5_V2_HEIGHT; j++) {
+        epd_data2((uint8_t *)(image + j * width), width);
+    }
+
+    epd_cmd(0x13);
+    for (int j = 0; j < EPD_7IN5_V2_HEIGHT; j++) {
+        for (int i = 0; i < width; i++) {
+            image[i + j * width] = ~image[i + j * width];
+        }
+    }
+    for (int j = 0; j < EPD_7IN5_V2_HEIGHT; j++) {
+        epd_data2((uint8_t *)(image + j * width), width);
+    }
+    epd_7in5_v2_trun_on_display();
+}
+
+void epd_7in5_v2_sleep(void)
+{
+    epd_cmd(0x50);
+    epd_data(0xF7);
+    epd_cmd(0x02);
+    epd_wait_until_idle();
+    epd_cmd(0x07);
+    epd_data(0xA5);
+}
