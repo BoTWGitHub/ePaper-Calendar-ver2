@@ -49,7 +49,8 @@ for subset in subset_font/*.ttf; do
     output_path="output/${base}.c"
 
     echo "  ➤ 產生 C 檔案：$output_path"
-    xxd -i "$subset" > "$output_path"
+    xxd -i "$subset" | sed 's/^unsigned char /const unsigned char /' \
+    | sed 's/^unsigned int /const unsigned int /' > "$output_path"
 
     if [ $? -eq 0 ]; then
         echo "    ✅ C 檔完成：$output_path"
