@@ -67,7 +67,7 @@ void epd_spi_pre_transfer_callback(spi_transaction_t *t)
     gpio_set_level(PIN_NUM_DC, dc);
 }
 
-void epd_spt_init()
+void epd_spi_init()
 {
     esp_err_t ret;
     spi_bus_config_t buscfg = {
@@ -97,5 +97,5 @@ void epd_spt_init()
 void device_init()
 {
     gpio_init();
-    epd_spt_init();
+    epd_spi_init();
 }

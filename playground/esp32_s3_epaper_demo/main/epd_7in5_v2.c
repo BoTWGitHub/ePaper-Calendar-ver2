@@ -41,7 +41,7 @@ static void epd_7in5_v2_trun_on_display(void)
     epd_wait_until_idle();
 }
 
-uint8_t epd_7in5_v2_init(void)
+void epd_7in5_v2_init(void)
 {
     epd_power_on();
     epd_reset();
@@ -80,8 +80,6 @@ uint8_t epd_7in5_v2_init(void)
 
     epd_cmd(0x60);
     epd_data(0x22);
-
-    return 0;
 }
 
 void epd_7in5_v2_clear(void)
