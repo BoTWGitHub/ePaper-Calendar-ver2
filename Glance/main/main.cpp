@@ -10,6 +10,7 @@
 #include "config.hpp"
 #include "storage.hpp"
 #include "http_client.hpp"
+#include "ics_parser.hpp"
 
 static const char *TAG = "main";
 
@@ -49,8 +50,17 @@ extern "C" void app_main(void)
 
             if (!app_cfg.calendar.urls.empty()) {
                 HttpClient http_client;
+                IcsParser ics_parser;
+                
+                http_client.set_on_line_received([&ics_parser](const std::string& line) {
+                    ics_parser.parse_line(line);
+                });
+
                 ESP_LOGI(TAG, "Fetching calendar data...");
-                http_client.fetch(app_cfg.calendar.urls[0]);
+                if (http_client.fetch(app_cfg.calendar.urls[0]) == ESP_OK) {
+                    ics_parser.flush();
+                    ics_parser.print_events();
+                }
             }
         } else {
             ESP_LOGE(TAG, "WiFi connection failed.");

@@ -5,7 +5,7 @@
 
 static const char *TAG = "HttpClient";
 
-HttpClient::HttpClient() : line_buffer_pos(0) {
+HttpClient::HttpClient() : line_buffer_pos(0), on_line_received(nullptr) {
     memset(line_buffer, 0, sizeof(line_buffer));
 }
 
@@ -31,7 +31,11 @@ esp_err_t HttpClient::handle_event(esp_http_client_event_t *evt) {
             // Flush any remaining data in the buffer that didn't end with a newline
             if (line_buffer_pos > 0) {
                 line_buffer[line_buffer_pos] = '\0';
-                ESP_LOGI(TAG, "%s", line_buffer);
+                if (on_line_received) {
+                    on_line_received(std::string(line_buffer));
+                } else {
+                    ESP_LOGI(TAG, "%s", line_buffer);
+                }
                 line_buffer_pos = 0;
             }
             break;
@@ -53,8 +57,12 @@ void HttpClient::process_data_chunk(const char* data, int len) {
                 line_buffer[line_buffer_pos - 1] = '\0';
             }
             
-            // Log the complete line
-            ESP_LOGI(TAG, "%s", line_buffer);
+            // Log or callback
+            if (on_line_received) {
+                on_line_received(std::string(line_buffer));
+            } else {
+                ESP_LOGI(TAG, "%s", line_buffer);
+            }
             
             // Reset buffer position for the next line
             line_buffer_pos = 0;
@@ -65,7 +73,12 @@ void HttpClient::process_data_chunk(const char* data, int len) {
                 // Buffer is full without encountering a newline.
                 // Force flush the current buffer content.
                 line_buffer[LINE_BUFFER_SIZE - 1] = '\0';
-                ESP_LOGI(TAG, "%s", line_buffer);
+                
+                if (on_line_received) {
+                    on_line_received(std::string(line_buffer));
+                } else {
+                    ESP_LOGI(TAG, "%s", line_buffer);
+                }
                 
                 // Start a new line with the current character
                 line_buffer_pos = 0;
