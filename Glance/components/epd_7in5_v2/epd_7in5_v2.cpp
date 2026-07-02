@@ -204,18 +204,18 @@ void Epd7in5V2::show(std::span<const uint8_t> data) {
         send_data(data.subspan(j * width_bytes, width_bytes));
     }
 
-    // Invert data for the second part as in original demo
-    uint8_t *inverted_data = new uint8_t[data.size()];
-    for (size_t i = 0; i < data.size(); i++) {
-        inverted_data[i] = ~data[i];
-    }
+    // Invert data row-by-row for DTM2 using a small stack buffer
+    // instead of allocating the entire framebuffer on the heap.
+    uint8_t inverted_row[width_bytes];
 
     send_command(epd::Command::DTM2);
     for (size_t j = 0; j < frame_size.height; j++) {
-        send_data(std::span<const uint8_t>(inverted_data + j * width_bytes, width_bytes));
+        auto row = data.subspan(j * width_bytes, width_bytes);
+        for (size_t i = 0; i < width_bytes; i++) {
+            inverted_row[i] = ~row[i];
+        }
+        send_data(std::span<const uint8_t>(inverted_row, width_bytes));
     }
-
-    delete[] inverted_data;
 
     turn_on_display();
 }
