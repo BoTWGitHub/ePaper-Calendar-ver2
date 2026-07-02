@@ -77,3 +77,6 @@ Desktop.ini
 *.suo       # Visual Studio Solution User Options
 *.sln.docstates # Visual Studio
 Glance/spiffs_data/config.json
+
+# Font source files (download separately, see components/fonts/generate_fonts.sh)
+*.ttf
